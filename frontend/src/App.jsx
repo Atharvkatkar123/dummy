@@ -5,62 +5,32 @@ function App() {
   const [num2, setNum2] = useState("");
   const [result, setResult] = useState(null);
 
-  const calculate = (operator) => {
-    const n1 = Number(num1);
-    const n2 = Number(num2);
-    
-    if (isNaN(n1) || isNaN(n2)) {
-      setResult("Please enter valid numbers");
-      return;
-    }
-    
-    let res;
-    switch (operator) {
-      case "+":
-        res = n1 + n2;
-        break;
-      case "-":
-        res = n1 - n2;
-        break;
-      case "*":
-        res = n1 * n2;
-        break;
-      case "/":
-        if (n2 === 0) {
-          setResult("Cannot divide by zero");
-          return;
-        }
-        res = n1 / n2;
-        break;
-      default:
-        setResult("Invalid operator");
-        return;
-    }
-    
-    setResult(res);
+  const calculate = async (operator) => {
+    const res = await fetch("http://localhost:8000/calculate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        num1: Number(num1),
+        num2: Number(num2),
+        operator
+      }),
+    });
+
+    const data = await res.json();
+    setResult(data.result);
   };
 
   return (
     <div>
-      <h3>Python Calculator (Now Independent)</h3>
-      <input 
-        value={num1} 
-        onChange={e => setNum1(e.target.value)} 
-        placeholder="First number"
-        type="number"
-      />
-      <input 
-        value={num2} 
-        onChange={e => setNum2(e.target.value)} 
-        placeholder="Second number"
-        type="number"
-      />
+      <h3>Python Calculator</h3>
+      <input value={num1} onChange={e => setNum1(e.target.value)} />
+      <input value={num2} onChange={e => setNum2(e.target.value)} />
       <br />
       <button onClick={() => calculate("+")}>+</button>
       <button onClick={() => calculate("-")}>-</button>
       <button onClick={() => calculate("*")}>*</button>
       <button onClick={() => calculate("/")}>/</button>
-      <h4>Result: {result ?? ""}</h4>
+      <h4>Result: {result}</h4>
     </div>
   );
 }
